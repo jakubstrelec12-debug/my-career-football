@@ -1,0 +1,8 @@
+MY CAREER pro iPhone
+
+1. Na Macu rozbal ZIP.
+2. Otevri https://app.netlify.com/drop a nahraj celou rozbalenou slozku MY_CAREER_iPhone.
+3. Otevri prideleny https odkaz v Safari na iPhonu.
+4. Sdilet > Pridat na plochu.
+
+Postup se uklada lokalne v prohlizeci na danem zarizeni. Nemaz data webu.
