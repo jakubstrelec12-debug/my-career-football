@@ -36,7 +36,7 @@ const aimReticle=document.createElement('div');aimReticle.style.cssText='positio
 const progress=document.createElement('div');progress.style.cssText='position:fixed;top:47px;left:50%;transform:translateX(-50%);height:5px;width:140px;background:#0008;border-radius:6px;overflow:hidden';progress.innerHTML='<div style="width:0;height:100%;background:#f1cc5b"></div>';document.body.append(progress);
 const shotProgress=progress.firstElementChild;
 const banner=document.createElement('div');banner.style.cssText='position:fixed;left:50%;top:14%;transform:translateX(-50%);padding:5px 12px;background:#0a2238a8;border:1px solid #ffffff35;border-radius:6px;font-size:12px;font-weight:700;pointer-events:none';banner.textContent='PŘIPRAV SE NA STŘELU';document.body.append(banner);
-const clock=new THREE.Clock();let round=0,saves=0,start=performance.now(),aimX=0,aimY=1,finished=false,contact=false,handTargetX=0,handTargetY=0,gestureAt=0,shotAt=0;
+const clock=new THREE.Clock();let reported=false;let round=0,saves=0,start=performance.now(),aimX=0,aimY=1,finished=false,contact=false,handTargetX=0,handTargetY=0,gestureAt=0,shotAt=0;
 function next(){start=performance.now();aimX=(Math.random()-.5)*4.4;aimY=.75+Math.random()*1.15;finished=false;contact=false;ballGroup.position.set(0,.26,20);ballShadow.position.x=0;ballShadow.position.z=20;msg.textContent='';handTargetX=0;handTargetY=0}
 function input(x,y){handTargetX=Math.max(-1.6,Math.min(1.6,(x/innerWidth-.5)*3.4));handTargetY=Math.max(-.7,Math.min(1.1,(.55-y/innerHeight)*2.3));gestureAt=performance.now();aimReticle.style.display='block';aimReticle.style.left=x+'px';aimReticle.style.top=y+'px'}
 renderer.domElement.addEventListener('pointerdown',e=>{renderer.domElement.setPointerCapture(e.pointerId);input(e.clientX,e.clientY)});renderer.domElement.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType==='touch')input(e.clientX,e.clientY)});
@@ -46,7 +46,7 @@ function animate(){requestAnimationFrame(animate);const dt=Math.min(.05,clock.ge
 const p=Math.max(0,Math.min(1,(t-1.4)/1.45));
 if(!finished){ballGroup.position.set(aimX*p,.26+(aimY-.26)*p+.55*Math.sin(Math.PI*p),20-19.2*p);ballShadow.position.set(aimX*p,.018,20-19.2*p);ballGroup.rotation.x+=dt*7;ballGroup.rotation.y+=dt*3;shotProgress.style.width=(p*100)+'%';banner.textContent=p<.02?'STŘELEC SE PŘIPRAVUJE':p<.75?'MÍČ LETÍ!':'ZÁKROK TEĎ!';
 if(p>=1){finished=true;round++;const near=Math.abs(handTargetX-aimX*.45)<(difficulty==='reflex'?.55:difficulty==='position'?.7:.78)&&Math.abs(handTargetY-(aimY-1.1)*.7)<.65;const timely=now-gestureAt<2100;contact=near&&timely;if(contact)saves++;msg.textContent=contact?'ZÁKROK!':'GÓL!';stats.textContent='ZÁKROKY '+saves+'/'+round;shotAt=now}}
-if(finished&&now-shotAt>1700){if(careerMode&&round>=5){parent.postMessage({source:'mycareer-pov',event:'complete',saved:saves,total:round},location.origin);msg.textContent='HOTOVO · '+saves+'/'+round;return}next();}
+if(finished&&now-shotAt>1700){if(careerMode&&round>=5){if(!reported){reported=true;parent.postMessage({source:'mycareer-pov',event:'complete',saved:saves,total:round},location.origin);msg.textContent='HOTOVO · '+saves+'/'+round}return}next();}
 left.position.x+=(-.57+handTargetX*.6-left.position.x)*.18;right.position.x+=(.57+handTargetX*.6-right.position.x)*.18;left.position.y+=(-.68+handTargetY*.65-left.position.y)*.18;right.position.y+=(-.68+handTargetY*.65-right.position.y)*.18;
 left.rotation.z=-.18-handTargetX*.18;right.rotation.z=.18-handTargetX*.18;
 camera.rotation.z+=(handTargetX*-.035-camera.rotation.z)*.04;
