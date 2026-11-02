@@ -4,7 +4,7 @@ const loading=document.getElementById('loading'),stats=document.getElementById('
 let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});}catch(e){loading.textContent='Na tomto zařízení nelze spustit WebGL: '+e.message;throw e}
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.35;document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x718fae);scene.fog=new THREE.Fog(0x718fae,105,195);
-const camera=new THREE.PerspectiveCamera(72,1,.05,220);camera.position.set(0,1.65,-.9);camera.lookAt(0,1.5,20);
+const camera=new THREE.PerspectiveCamera(72,1,.05,220);camera.position.set(0,1.65,-.9);camera.up.set(0,1,0);camera.lookAt(0,1.5,20);camera.rotation.z=Math.PI;
 scene.add(new THREE.HemisphereLight(0xc8e8ff,0x3c6540,2.5));const sun=new THREE.DirectionalLight(0xfff2d9,3.2);sun.position.set(-25,45,35);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
 const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});const turf=mat(0x297b42),white=new THREE.MeshBasicMaterial({color:0xf3f7f4}),glove=mat(0xf1c944,.48),dark=mat(0x101a22,.65),blue=mat(0x123a5e);
 function mesh(geo,material,x,y,z,parent=scene){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
@@ -49,7 +49,7 @@ if(p>=1){finished=true;round++;const near=Math.abs(handTargetX-aimX*.45)<(diffic
 if(finished&&now-shotAt>1700){if(careerMode&&round>=5){if(!reported){reported=true;parent.postMessage({source:'mycareer-pov',event:'complete',saved:saves,total:round},location.origin);msg.textContent='HOTOVO · '+saves+'/'+round}return}next();}
 left.position.x+=(-.57+handTargetX*.6-left.position.x)*.18;right.position.x+=(.57+handTargetX*.6-right.position.x)*.18;left.position.y+=(-.68+handTargetY*.65-left.position.y)*.18;right.position.y+=(-.68+handTargetY*.65-right.position.y)*.18;
 left.rotation.z=-.18-handTargetX*.18;right.rotation.z=.18-handTargetX*.18;
-camera.rotation.z+=(handTargetX*-.035-camera.rotation.z)*.04;
+camera.rotation.z+=(Math.PI-handTargetX*.035-camera.rotation.z)*.04;
 renderer.render(scene,camera)}
 loading.hidden=true;next();animate();
 </script></body></html>
