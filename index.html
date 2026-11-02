@@ -22,7 +22,7 @@ function drawWorld(now){let w=720,h=900;let grad=ctx.createLinearGradient(0,0,0,
 function loop(now){if(!G)return;if(!canvas||!canvas.isConnected){showGame()}if(G.phase==='ready'&&now-G.start>(G.type==='reflex'?1300:2100))shoot(now);if(stadium3D){stadium3D.update(now);if(G.phase==='flying'&&(now-G.shotAt)/G.shotDuration>=1)judge()}else drawWorld(now);raf=requestAnimationFrame(loop)}
 render();
 </script><script>if("serviceWorker" in navigator && location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.1/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r149/three.min.js"></script>
 <script>
 /* MY CAREER 2.0: genuine WebGL stadium with articulated 3D players */
 let stadium3D=null;
