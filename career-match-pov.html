@@ -49,7 +49,7 @@ if(p>=1){finished=true;round++;const near=Math.abs(handTargetX-aimX*.45)<(diffic
 if(finished&&now-shotAt>1700){if(careerMode&&round>=5){if(!reported){reported=true;parent.postMessage({source:'mycareer-pov',event:'complete',saved:saves,total:round},location.origin);msg.textContent='HOTOVO · '+saves+'/'+round}return}next();}
 left.position.x+=(-.36+handTargetX*.48-left.position.x)*.18;right.position.x+=(.36+handTargetX*.48-right.position.x)*.18;left.position.y+=(-.34+handTargetY*.42-left.position.y)*.18;right.position.y+=(-.34+handTargetY*.42-right.position.y)*.18;
 left.rotation.z=-.18-handTargetX*.18;right.rotation.z=.18-handTargetX*.18;
-camera.rotation.z+=(-handTargetX*.035-camera.rotation.z)*.04;
+
 renderer.render(scene,camera)}
 loading.hidden=true;next();animate();
 </script></body></html>
