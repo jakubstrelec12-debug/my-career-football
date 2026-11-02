@@ -1,0 +1,47 @@
+<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>MY CAREER – Gloves 3D</title><style>*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#08131c;color:white;font-family:system-ui}canvas{display:block;touch-action:none}#hud{position:fixed;top:env(safe-area-inset-top,8px);left:10px;right:10px;display:flex;justify-content:space-between;pointer-events:none;font-weight:800;text-shadow:0 2px 5px #000}#tip{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:10px;font-size:12px;background:#001a28bb;padding:9px;border-radius:8px;max-width:60%}#msg{position:fixed;top:36%;width:100%;text-align:center;font-weight:900;font-size:clamp(25px,5vw,44px);text-shadow:0 3px 12px #000;pointer-events:none}#reset{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:10px;padding:14px;background:#f2cb59;border:0;border-radius:10px;font-weight:900;color:#18202b}#loading{position:fixed;inset:0;background:#08131c;display:grid;place-items:center;z-index:5}#loading[hidden]{display:none}@media(orientation:portrait){#tip:after{content:' · Otoč iPhone na šířku'}} </style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"}}</script></head><body><div id="loading">Načítám 3D pohled brankáře…</div><div id="hud"><span>MY CAREER · POV BRANKÁŘ</span><span id="stats">ZÁKROKY 0/0</span></div><div id="msg"></div><div id="tip">Táhni prstem: rukavice sledují dotyk. Při střele švihni směrem k míči.</div><button id="reset">DALŠÍ STŘELA</button><script type="module">
+import * as THREE from 'three';
+const loading=document.getElementById('loading'),stats=document.getElementById('stats'),msg=document.getElementById('msg');
+let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});}catch(e){loading.textContent='Na tomto zařízení nelze spustit WebGL: '+e.message;throw e}
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.35;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x708ba7);scene.fog=new THREE.Fog(0x708ba7,75,160);
+const camera=new THREE.PerspectiveCamera(72,1,.05,220);camera.position.set(0,1.65,-.9);
+scene.add(new THREE.HemisphereLight(0xc8e8ff,0x3c6540,2.5));const sun=new THREE.DirectionalLight(0xfff2d9,3.2);sun.position.set(-25,45,35);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});const turf=mat(0x297b42),white=new THREE.MeshBasicMaterial({color:0xf3f7f4}),glove=mat(0xf1c944,.48),dark=mat(0x101a22,.65),blue=mat(0x123a5e);
+function mesh(geo,material,x,y,z,parent=scene){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+const pitch=mesh(new THREE.PlaneGeometry(105,145),turf,0,-.04,35);pitch.rotation.x=-Math.PI/2;pitch.castShadow=false;
+for(let i=0;i<19;i++){const p=mesh(new THREE.PlaneGeometry(105,5),mat(i%2?0x2e8247:0x337e43),0,-.025,-9+i*6);p.rotation.x=-Math.PI/2;p.castShadow=false}
+function line(x1,z1,x2,z2){const dx=x2-x1,dz=z2-z1,m=mesh(new THREE.BoxGeometry(.1,.012,Math.hypot(dx,dz)),white,(x1+x2)/2,.006,(z1+z2)/2);m.rotation.y=Math.atan2(dx,dz);m.castShadow=false}
+line(-34,0,34,0);line(-34,0,-34,90);line(34,0,34,90);line(-34,90,34,90);line(-20,0,-20,16);line(20,0,20,16);line(-20,16,20,16);line(-9,0,-9,6);line(9,0,9,6);line(-9,6,9,6);
+const crowdMats=[mat(0x253b58),mat(0x3a5c85),mat(0x9bafbb),mat(0x4d6b8e),mat(0x9c423c)];
+for(let side of [-1,1])for(let row=0;row<16;row++){const x=side*(38+row*1.25),y=.4+row*.65;mesh(new THREE.BoxGeometry(1.3,.55,130),mat(0x303c46),x,y,31);for(let j=0;j<56;j++){const c=crowdMats[(j*7+row*3)%5];mesh(new THREE.BoxGeometry(.52,.42,.5),c,x,y+.43,-20+j*2.1)}}
+for(let row=0;row<13;row++){let z=93+row*1.3,y=.4+row*.65;mesh(new THREE.BoxGeometry(105,.6,1.2),mat(0x303c46),0,y,z);for(let j=0;j<55;j++)mesh(new THREE.BoxGeometry(.7,.4,.55),crowdMats[(j+row)%5],-50+j*1.85,y+.4,z)}
+for(let side of [-1,1])for(let z of [-12,70]){mesh(new THREE.CylinderGeometry(.18,.23,24,8),mat(0x7b8690),side*41,12,z);mesh(new THREE.BoxGeometry(9,1,.8),new THREE.MeshBasicMaterial({color:0xfff5d8}),side*41,24,z)}
+// Goal frame is behind camera; its shadow/side frame are visible when looking around.
+const posts=mat(0xf3f6f8,.3);function rod(a,b,r){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),v=B.clone().sub(A);const o=mesh(new THREE.CylinderGeometry(r,r,v.length(),12),posts,...A.clone().add(B).multiplyScalar(.5).toArray());o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize())}
+rod([-3.66,0,-1.5],[-3.66,2.44,-1.5],.07);rod([3.66,0,-1.5],[3.66,2.44,-1.5],.07);rod([-3.66,2.44,-1.5],[3.66,2.44,-1.5],.07);
+const striker=new THREE.Group();striker.position.set(0,0,21);scene.add(striker);
+function bodypart(geo,material,x,y,z,group){return mesh(geo,material,x,y,z,group)}
+bodypart(new THREE.CapsuleGeometry(.33,.78,5,10),mat(0xc62e38),0,1.45,0,striker);bodypart(new THREE.SphereGeometry(.22,12,10),mat(0xb98264),0,2.27,0,striker);for(let s of [-1,1]){bodypart(new THREE.CapsuleGeometry(.105,.57,4,8),mat(0xb98264),s*.45,1.47,0,striker);bodypart(new THREE.CapsuleGeometry(.13,.67,4,8),mat(0x1c283c),s*.18,.55,0,striker);bodypart(new THREE.BoxGeometry(.24,.15,.4),dark,s*.18,.09,.14,striker)}
+// Real volumetric gloves in camera space, with fingers, cuffs and palms.
+const hands=new THREE.Group();camera.add(hands);scene.add(camera);
+function makeHand(side){const g=new THREE.Group();g.position.set(side*.58,-.68,-1.35);hands.add(g);const cuff=bodypart(new THREE.CylinderGeometry(.18,.22,.32,12),dark,0,-.26,.04,g);cuff.rotation.z=-side*.18;bodypart(new THREE.BoxGeometry(.43,.46,.19),glove,0,.08,0,g);bodypart(new THREE.BoxGeometry(.36,.25,.05),dark,0,.02,-.12,g);for(let i=0;i<4;i++){const x=(i-1.5)*.108;const finger=bodypart(new THREE.CapsuleGeometry(.049,.28-(Math.abs(i-1.5)*.04),4,8),glove,x,.42-Math.abs(i-1.5)*.02,0,g);finger.rotation.z=(i-1.5)*-.06}const thumb=bodypart(new THREE.CapsuleGeometry(.075,.19,4,8),glove,-side*.27,.11,.02,g);thumb.rotation.z=side*.7;return g}
+const left=makeHand(-1),right=makeHand(1);
+const ball=mesh(new THREE.SphereGeometry(.22,24,18),mat(0xf5f5ef,.38),0,.22,20);
+for(let i=0;i<9;i++){const a=i*2.399;const patch=mesh(new THREE.IcosahedronGeometry(.055,0),dark,Math.sin(a)*.19,Math.cos(a)*.19,Math.sin(a*2)*.05,ball)}
+const clock=new THREE.Clock();let round=0,saves=0,start=performance.now(),aimX=0,aimY=1,finished=false,contact=false,handTargetX=0,handTargetY=0,gestureAt=0,shotAt=0;
+function next(){start=performance.now();aimX=(Math.random()-.5)*5.8;aimY=.5+Math.random()*1.5;finished=false;contact=false;ball.position.set(0,.22,20);msg.textContent='';handTargetX=0;handTargetY=0}
+function input(x,y){handTargetX=Math.max(-1.5,Math.min(1.5,(x/innerWidth-.5)*3.2));handTargetY=Math.max(-.6,Math.min(1.1,(.55-y/innerHeight)*2.2));gestureAt=performance.now()}
+renderer.domElement.addEventListener('pointerdown',e=>{renderer.domElement.setPointerCapture(e.pointerId);input(e.clientX,e.clientY)});renderer.domElement.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType==='touch')input(e.clientX,e.clientY)});
+function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth>innerHeight?72:58;camera.updateProjectionMatrix()}window.addEventListener('resize',resize);resize();
+document.querySelector('#reset').onclick=next;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(.05,clock.getDelta()),now=performance.now(),t=(now-start)/1000;
+const p=Math.max(0,Math.min(1,(t-1.4)/1.45));
+if(!finished){ball.position.set(aimX*p,.22+(aimY-.22)*p+.55*Math.sin(Math.PI*p),20*(1-p));ball.rotation.x+=dt*7;
+if(p>=1){finished=true;round++;const near=Math.abs(handTargetX-aimX*.36)<.65&&Math.abs(handTargetY-(aimY-1)*.6)<.5;const timely=now-gestureAt<1350;contact=near&&timely;if(contact)saves++;msg.textContent=contact?'ZÁKROK!':'GÓL!';stats.textContent='ZÁKROKY '+saves+'/'+round;shotAt=now}}
+if(finished&&now-shotAt>1400)next();
+left.position.x+=(-.57+handTargetX*.6-left.position.x)*.18;right.position.x+=(.57+handTargetX*.6-right.position.x)*.18;left.position.y+=(-.68+handTargetY*.65-left.position.y)*.18;right.position.y+=(-.68+handTargetY*.65-right.position.y)*.18;
+left.rotation.z=-.18-handTargetX*.18;right.rotation.z=.18-handTargetX*.18;
+camera.rotation.z+=(handTargetX*-.035-camera.rotation.z)*.04;camera.rotation.x+=(handTargetY*.025-camera.rotation.x)*.04;
+renderer.render(scene,camera)}
+loading.hidden=true;next();animate();
+</script></body></html>
